@@ -1,0 +1,101 @@
+<style lang="less">
+.load-status {
+  width: 100%;
+  height: 100%;
+}
+.loading,
+.error,
+.empty {
+  padding: 20px 10px;
+}
+.loading {
+  text-align: center;
+}
+.loading-tip {
+  display: inline-block;
+  vertical-align: middle;
+}
+.loading-icon {
+  display: inline-block;
+  margin-right: 12px;
+  vertical-align: middle;
+  width: 14px;
+  height: 14px;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px solid #e9eaec;
+  border-color: #e9eaec #e9eaec #e9eaec #2d8cf0;
+  animation: btn-spin 0.6s linear;
+  animation-iteration-count: infinite;
+}
+.empty,
+.error {
+  text-align: center;
+}
+.empty image,
+.error image {
+  width: 80px;
+  height: 80px;
+}
+.empty .empty-tip,
+.error .error-tip {
+  color: #666;
+  margin-top: 10px;
+}
+.reload-btn {
+  display: inline-block;
+  padding: 10px 25px;
+  font-size: 14px;
+  margin-top: 10px;
+  border-radius: 30px;
+  line-height: 1.2;
+  background: #e8eaec;
+}
+@keyframes btn-spin {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
+
+<template>
+  <view class="load-status {{ eclass}}">
+    <!--加载中-->
+    <view class="loading" wx:if="{{status ==='loading'}}">
+      <view class="loading-icon" ></view> <view class="loading-tip">正在加载中...</view>
+    </view>
+    <!--空数据-->
+    <view class="empty" wx:elif="{{status==='empty'}}">
+      <image src="../public/empty.png"></image>
+      <view class="empty-tip">数据为空</view>
+    </view>
+    <!--第一次加载失败-->
+    <view class="error" wx:elif="{{status ==='error'}}" >
+      <image src="../public/error.png"></image>
+      <view class="error-tip">加载失败</view>
+      <button class="reload-btn" @tap="onClickError">重试</button>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class SwitchStatus extends wepy.component {
+  props = {
+    status: {
+      type: String,
+      default: 'loading'
+    },
+    eclass: ''
+  }
+  methods = {
+    onClickError() {
+      this.$emit('onError')
+    }
+  }
+  onLoad() {
+  }
+}
+</script>

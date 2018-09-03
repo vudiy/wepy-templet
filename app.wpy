@@ -1,0 +1,139 @@
+<style lang="less">
+@import url(./common/global.less);
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+import md5 from './common/md5.min.js'
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#ff9900',
+      navigationBarTitleText: 'wepy-模板库 下载既可以使用',
+      navigationBarTextStyle: 'white'
+    },
+    // tabBar: {
+    //   color: '#818181',
+    //   selectedColor: '#ff9900',
+    //   backgroundColor: '#fff',
+    //   borderStyle: 'white',
+    //   list: [
+    //     {
+    //       pagePath: 'pages/index',
+    //       text: '预约明细',
+    //       iconPath: './public/home.png',
+    //       selectedIconPath: './public/home_hover.png'
+    //     },
+    //     {
+    //       pagePath: 'pages/user',
+    //       text: '我的',
+    //       iconPath: './public/user.png',
+    //       selectedIconPath: './public/user_hover.png'
+    //     }
+    //   ]
+    // },
+    networkTimeout: {
+      request: 10000,
+      connectSocket: 20000,
+      uploadFile: 20000,
+      downloadFile: 20000
+    }
+  }
+  globalData = {
+    userInfo: {
+      // uid: '919833938393'
+    }
+  }
+  constructor() {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+    // 请求拦截器
+    this.initIntercept()
+  }
+  initIntercept() {
+    // 拦截request请求
+    this.intercept('request', {
+      // 发出请求时的回调函数
+      config(p) {
+        // 对所有request请求中的OBJECT参数对象统一附加时间戳属性
+        p.header['content-type'] =
+          'application/x-www-form-urlencoded;charset=UTF-8'
+        p.header['x-requested-with'] = 'XMLHttpRequest'
+        p.header['wid'] = this.globalData.wid
+        if (this.isLogin()) {
+          p.header.Cookie = 'JSESSIONID=' + this.globalData.userInfo.sid
+        }
+        let time = new Date()
+        let random = Math.random()
+        let { uid = '', token = '' } = this.globalData.userInfo || {}
+        p.header.userId = uid
+        p.header.time = time.getTime()
+        p.header.random = random
+        p.header.token = token
+        let array = {
+          userId: uid,
+          random: random,
+          time: time,
+          token: token
+        }
+        p.header.sign = md5(array)
+        console.log('config request: ', p)
+        // 必须返回OBJECT参数对象，否则无法发送请求到服务端
+        return p
+      },
+      // 请求完成时的回调函数(请求成功或失败都会被执行)
+      complete(p) {
+        wepy.hideNavigationBarLoading()
+      }
+    })
+  }
+  // 判断是否登录了
+  isLogin() {
+    let { uid = '' } = this.globalData.userInfo || {}
+    if (uid !== '' && uid) return true
+    else return false
+  }
+
+  /* ============= 工具方法（app没法用mixins，就再写一遍了） ============= */
+  isObject(item) {
+    return typeof item === 'object' && !this.isArray(item)
+  }
+  isArray(item) {
+    return Object.prototype.toString.apply(item) === '[object Array]'
+  }
+  isUndefined(item) {
+    return typeof item === 'undefined'
+  }
+
+  /* ========================= 更新缓存信息 ======================== */
+  $updateGlobalData(name, obj) {
+    // 校验: globalData
+    if (!this.globalData) return
+    // 校验: 操作字段
+    if (typeof name !== 'string' || name === '') return {}
+    // 取已有信息
+    const info = this.globalData[name] || {}
+    // 更新缓存
+    if (obj && this.isObject(obj)) {
+      // Object合并第一层
+      this.globalData[name] = Object.assign({}, info, obj)
+    } else if (!this.isUndefined(obj)) {
+      // 其他非undefined数据直接覆盖
+      this.globalData[name] = obj
+    }
+    this.$apply && this.$apply()
+    console.info(
+      `[${obj ? 'UPDATE' : 'GET'} GlobalData ${name}]:`,
+      this.globalData[name]
+    )
+    return this.globalData[name]
+  }
+  onLaunch() {}
+}
+</script>

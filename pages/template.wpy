@@ -1,0 +1,29 @@
+<style lang="less">
+</style>
+
+<template>
+  <view class="container">
+    <switch-status :status.aync="status"></switch-status>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import SwitchStatus from '../components/switch-status'
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: '模板页面',
+    usingComponents: {}
+  }
+  components = {
+    switch-status:SwitchStatus
+  }
+  data = {
+    status:'loading'
+  }
+  computed = {
+  }
+  methods = {}
+  events = {}
+}
+</script>

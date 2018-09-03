@@ -1,0 +1,200 @@
+<style lang="less">
+@nav-height: 42px;
+@nav-border-color: #eee;
+.menus {
+  background: #fff;
+  border-bottom: 1rpx solid @nav-border-color;
+  border-top: 1rpx solid @nav-border-color;
+  position: relative;
+  .menu-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    vertical-align: middle;
+    border-left: @nav-border-color;
+    image {
+      height: 12px;
+      width: 12px;
+      border: none; // vertical-align: middle;
+    }
+    .item-content {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: @nav-height;
+      background: #fff;
+      z-index: 110;
+      border-top: 1rpx solid @nav-border-color;
+      padding: 10px;
+      .con-item {
+        padding: 5px 10px;
+        margin: 5px;
+        font-size: 14px;
+        border: 1px solid @nav-border-color;
+        border-radius: 30px;
+      }
+      .is-active {
+        color: '#2aadff';
+      }
+      .is-inline {
+        float: left;
+      }
+    }
+  }
+}
+.bg {
+  position: absolute;
+  height: calc(100vh);
+  // height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  top: @nav-height;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.5);
+}
+</style>
+<template>
+  <view class="flex menus">
+    <view wx:for="{{menus}}" wx:key="a" wx:for-index="index" wx:for-item="menu" class="menu-item" @tap="showMenu({{index}})">
+      <text>{{menu.list[menu.selectIndex].value}} </text>
+      <image src="../public/down.png"></image>
+      <view class="item-content" wx:if="{{menu.isShow}}">
+        <block wx:for="{{menu.list}}" wx:for-index="mindex" wx:key="b" wx:for-item="item">
+          <view class="con-item {{ menu.selectIndex === mindex ?'is-active':''}} is-inline"  @tap="onClickMenuItem({{index}},{{mindex}})">{{item.value}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="bg" wx:if="{{showBg}}" @tap="onClickBg"></view>
+  </view>
+  
+</template>
+<script>
+import wepy from 'wepy'
+export default class Dropmenu extends wepy.component {
+  props = {
+    onItemChange: {
+      type: String,
+      default: 'onChange'
+    },
+
+    onStatusChange: {
+      type: String,
+      default: 'onStatus'
+    }
+  }
+  data = {
+    menus: [
+      {
+        selectIndex: 0,
+        isShow: false,
+        list: [
+          {
+            key: '0',
+            value: '车型不限'
+          },
+          {
+            key: 'c1',
+            value: 'C1小车手动挡'
+          },
+          {
+            key: 'c2',
+            value: 'C2小车自动挡'
+          },
+          {
+            key: 'a1',
+            value: 'A1大型客车'
+          },
+          {
+            key: 'a2',
+            value: 'A2牵引车'
+          },
+          {
+            key: 'a3',
+            value: 'A3城市公交'
+          },
+          {
+            key: 'b1',
+            value: 'B1中型客车'
+          },
+          {
+            key: 'b2',
+            value: 'B2大型货车'
+          }
+        ]
+      },
+      {
+        selectIndex: 0,
+        list: [
+          {
+            key: 0,
+            value: '智能排序'
+          },
+          {
+            key: 1,
+            value: '离我最近'
+          },
+          {
+            key: 2,
+            value: '规模大小'
+          },
+          {
+            key: 3,
+            value: '人气排序'
+          }
+        ]
+      }
+    ],
+    showBg: false
+  }
+  menuShowIndex = -1
+  closeBg() {
+    this.showBg = false
+    let menu = this.menus[this.menuShowIndex]
+
+    if (menu) {
+      menu.isShow = false
+    }
+    this.menuShowIndex = -1
+  }
+  methods = {
+    showMenu(index) {
+      if (this.menuShowIndex === index) {
+        // 则隐藏当前的
+        this.closeBg()
+      } else {
+        // 打开另外一个
+        this.showBg = true
+        if (this.menuShowIndex > -1) {
+          this.menus[this.menuShowIndex].isShow = false
+        }
+        this.menuShowIndex = index
+        this.menus[index].isShow = true
+      }
+    },
+    onClickMenuItem(index, k) {
+      // console.log(index, k)
+      let menu = this.menus[index]
+      if (menu && menu.selectIndex !== k) {
+        menu.selectIndex = k
+        let item = menu.list[k]
+        if (this.onItemChange) {
+          this.$emit(this.onItemChange, index, item)
+        }
+      }
+    },
+    onClickBg() {
+      this.closeBg()
+    }
+  }
+  onLoad() {}
+  events = {}
+  watch = {
+    showBg(newValue, oldValue) {
+      this.$emit(this.onStatusChange, oldValue, newValue)
+    }
+  }
+}
+</script>

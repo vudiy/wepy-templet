@@ -1,0 +1,104 @@
+<!--驾校教练列表等列表项-->
+<style lang="less">
+@space: 10px;
+.item {
+  padding: @space;
+  background: #fff;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #eee;
+  .item-l {
+    width: 80px;
+    height: 60px;
+    border-radius: @space / 2;
+    overflow: hidden;
+    image {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .item-l.is-circle {
+    width: 60px !important;
+    border-radius: 60px;
+  }
+  .item-m {
+    flex: 1;
+    padding-left: @space;
+    .title {
+      font-weight: bold;
+    }
+  }
+}
+</style>
+
+<template>
+  <view class="item" @tap="look">
+    <view class="item-l {{isCircle}}">
+      <image src="{{getPhoto}}" />
+    </view>
+    <view class="item-m">
+      <view class="{{isBold}}}">{{title}}</view>
+      <slot></slot>
+    </view>
+    <view class="item-r">
+      <slot name='footer'></slot>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class ListItem extends wepy.component {
+  props = {
+    id: {
+      type: String,
+      default: ''
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    photo: {
+      type: String,
+      default: '../public/no_photo.png'
+    },
+    onItemClick: {
+      type: String,
+      default: ''
+    },
+    circle: {
+      type: Boolean,
+      default: false
+    },
+    bold: {
+      type: Boolean,
+      default: true
+    }
+  }
+  data = {}
+  events = {}
+  computed = {
+    isCircle() {
+      return this.bold !== undefined && this.circle.toLowerCase() === 'true'
+        ? 'is-circle'
+        : ''
+    },
+    getPhoto() {
+      return this.photo === '' ? this.photo : '../public/no_photo.png'
+    },
+    isBold() {
+      return this.bold !== undefined && this.bold.toLowerCase() === 'true'
+        ? 'title'
+        : ''
+    }
+  }
+  methods = {
+    look() {
+      if (this.onItemClick) {
+        this.$emit(this.onItemClick, this.id)
+      }
+    }
+  }
+  onLoad() {}
+}
+</script>

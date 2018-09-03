@@ -1,0 +1,28 @@
+<style lang="less">
+
+</style>
+
+<template>
+  <view class="login-panel">
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class ListItem extends wepy.component {
+  props = {
+    status: {
+      type: String,
+      default: 'loading'
+    },
+    eclass: ''
+  }
+  methods = {
+    onClickError() {
+      this.$emit('onError')
+    }
+  }
+  onLoad() {
+    console.log(this.status)
+  }
+}
+</script>
