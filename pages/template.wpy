@@ -22,6 +22,7 @@ export default class Home extends wepy.page {
     status:'loading'
   }
   computed = {
+    
   }
   methods = {}
   events = {}
